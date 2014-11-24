@@ -26,3 +26,21 @@
 *.exe
 *.out
 *.app
+
+# vim files
+.*.swp
+.*.swo
+*.vimrc
+.syntastic_cpp_config
+*~
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# CPack
+CPackConfig.cmake
+CPackSourceConfig.cmake
