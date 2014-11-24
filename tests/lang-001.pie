@@ -1,0 +1,19 @@
+# 
+# It is the very first version of pie lang, it will be changed
+# as my will, it is a test case for my langauge
+# 
+
+
+# It is a comment
+
+a = 10
+a += 10
+a = a - 10
+
+# Put anything
+puts a
+puts "It is a string\n"
+
+puts 1 + 1
+
+puts strlen(a)
