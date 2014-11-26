@@ -1,11 +1,14 @@
 %option noyywrap
 
 %{ /* -*- mode: c++ -*- */
+#include "scanner.h"
+#include "parser.h"
 #include "pie.tab.hpp"
+
 // macros for flex
-#define YYSTYPE HPHP::ScannerToken
-#define YYLTYPE pie::paser::Location
-#define YY_EXTRA_TYPE pie::Scanner*
+#define YYSTYPE pie::compiler::ScannerToken
+#define YYLTYPE pie::compiler::Location
+#define YY_EXTRA_TYPE pie::compiler::Scanner*
 %}
 
 

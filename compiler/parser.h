@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace pie { namespace parser {
+namespace pie { namespace compiler {
 
 struct Token {
 };
@@ -14,8 +14,8 @@ struct Location {
 
 class Parser {
 public:
-	int scan(Token *token, Location *loc);
-	void parseFatal(Location *loc, std::string msg);
+	int scan(Token *token);
+	void parseFatal(std::string msg);
 
 };
 

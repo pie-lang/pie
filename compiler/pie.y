@@ -1,22 +1,28 @@
 %{
-#define YYSTYPE pie::parser::Token
+#define YYERROR_VERBOSE
+#define YYSTYPE pie::compiler::Token
 #define YYLEX_PARAM _p
-#define YYLTYPE pie::parser::Location
+#define YYLTYPE_IS_TRIVIAL true
+#define YYLTYPE pie::compiler::Location
 
 #include "parser.h"
-
 
 #ifdef yyerror
 #undef yyerror
 #endif
-#define yyerror(loc,p,msg) p->parseFatal(loc,msg)
+#define yyerror(p,msg) p->parseFatal(msg)
 
-using namespace pie::parser;
+using namespace pie::compiler;
 
-static int yylex(YYSTYPE *token, Location *loc, Parser *_p) {
-  return _p->scan(token, loc);
+static int yylex(YYSTYPE *token, Parser *_p) {
+  return _p->scan(token);
 }
 %}
+
+%define api.pure
+%lex-param {pie::compiler::Parser *_p}
+%parse-param {pie::compiler::Parser *_p}
+
 
 %left T_PLUS T_MINUS T_MUL T_DIV
 
@@ -36,5 +42,6 @@ top_statement:
 ;
 
 expr:
-	T_NUMBER T_PLUS T_NUMBER
+	/* Empty */
+	| T_NUMBER T_PLUS T_NUMBER { /* Empty for now */ }
 ;
