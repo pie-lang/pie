@@ -1,8 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7 FATAL_ERROR)
 
-# includes
-SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
-
 # package information
 SET(PACKAGE_NAME      "pie")
 SET(PACKAGE_VERSION   "0.0.1-dev")
@@ -19,9 +16,11 @@ IF(APPLE)
     CMAKE_OSX_SYSROOT)
 ENDIF()
 
+set(PIE_LINK_LIBRARIES pie_compiler pie_vm)
+
 ADD_SUBDIRECTORY(compiler)
 ADD_SUBDIRECTORY(vm)
 ADD_SUBDIRECTORY(vendor)
+ADD_SUBDIRECTORY(main)
 
-# use GNU install dirs (e.g. lib64 instead of lib)
 INCLUDE(GNUInstallDirs)

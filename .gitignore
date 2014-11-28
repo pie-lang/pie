@@ -44,3 +44,11 @@ install_manifest.txt
 # CPack
 CPackConfig.cmake
 CPackSourceConfig.cmake
+
+
+
+# Ignore generated file for now
+compiler/lex.yy.cpp
+compiler/pie.tab.cpp
+compiler/pie.tab.hpp
+
