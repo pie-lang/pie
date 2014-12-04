@@ -1,14 +1,14 @@
 %option noyywrap
 
 %{ /* -*- mode: c++ -*- */
-#include "scanner.h"
-#include "parser.h"
-#include "pie.tab.hpp"
+#include "compiler/scanner.h"
+#include "compiler/parser.h"
+#include "compiler/pie.tab.hpp"
 
-// macros for flex
 #define YYSTYPE pie::compiler::ScannerToken
-#define YYLTYPE pie::compiler::Location
+#define YYLTYPE int
 #define YY_EXTRA_TYPE pie::compiler::Scanner*
+#define _scanner yyextra
 %}
 
 
@@ -26,3 +26,13 @@ WHITESPACE [ \n\r\t]+
 
 
 %%
+
+namespace pie { namespace compiler {
+
+void Scanner::scan()
+{
+    yylex_init_extra(this, &m_yyscanner);
+	yylex(m_yyscanner);
+}
+
+}}
