@@ -38,10 +38,13 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 
 
 top_statement:
-	expr
+	/* Empty */
+	| expr
 ;
 
 expr:
-	/* Empty */
-	| T_NUMBER T_PLUS T_NUMBER { /* Empty for now */ }
+	T_NUMBER T_PLUS T_NUMBER { /* Empty for now */ }
+	T_NUMBER T_MINUS T_NUMBER { /* Empty for now */ }
+	T_NUMBER T_MUL T_NUMBER { /* Empty for now */ }
+	T_NUMBER T_DIV T_NUMBER { /* Empty for now */ }
 ;
