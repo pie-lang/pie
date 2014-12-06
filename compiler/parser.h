@@ -14,7 +14,7 @@ struct Location {
 
 class Parser {
 public:
-	int scan(Token *token);
+	void parse();
 	void parseFatal(std::string msg);
 
 };

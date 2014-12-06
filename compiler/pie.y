@@ -5,7 +5,7 @@
 #define YYLTYPE_IS_TRIVIAL true
 #define YYLTYPE pie::compiler::Location
 
-#include "parser.h"
+#include "compiler/parser.h"
 
 #ifdef yyerror
 #undef yyerror
@@ -15,7 +15,7 @@
 using namespace pie::compiler;
 
 static int yylex(YYSTYPE *token, Parser *_p) {
-  return _p->scan(token);
+  //return _p->scan(token);
 }
 %}
 
@@ -43,8 +43,19 @@ top_statement:
 ;
 
 expr:
-	T_NUMBER T_PLUS T_NUMBER { /* Empty for now */ }
+	T_NUMBER T_PLUS T_NUMBER { printf("WTF\n"); }
 	T_NUMBER T_MINUS T_NUMBER { /* Empty for now */ }
 	T_NUMBER T_MUL T_NUMBER { /* Empty for now */ }
 	T_NUMBER T_DIV T_NUMBER { /* Empty for now */ }
 ;
+
+%%
+
+namespace pie { namespace compiler {
+
+void Parser::parse()
+{
+  yyparse(this);
+}
+
+}}
