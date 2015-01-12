@@ -3,17 +3,41 @@
 # as my will, it is a test case for my langauge
 # 
 
-
 # It is a comment
 
-a = 10
-a += 10
-a = a - 10
+/* 
+	It is block comment
+*/
 
-# Put anything
-puts a
-puts "It is a string\n"
+module main;
 
-puts 1 + 1
+import std;
 
-puts strlen(a)
+/* There must be a main entry */
+func main(argc : int, argv : string[]) : int
+{
+	// if is not a statement but expression
+	i = if (true) { 10; } else { 20; } // i is int with type inference
+
+	test();
+
+	return 0;
+}
+
+func test() : void { // void function
+	a = 10
+	a += 10
+	a = a - 10
+
+	# Put anything
+	puts a
+	puts "It is a string\n"
+
+	puts 1 + 1
+
+	puts strlen(a)
+
+	if (a < 10) {
+		exit(1);
+	}
+}
