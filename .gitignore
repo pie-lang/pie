@@ -52,3 +52,4 @@ compiler/lex.yy.cpp
 compiler/pie.tab.cpp
 compiler/pie.tab.hpp
 
+main/pie
