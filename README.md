@@ -12,5 +12,6 @@ Languages I will learn from: Ruby, Rust, Haskell
 The features I want to Pie to have:
 
 - scripting language
-- static typing
-- imperative/functional/(object oriented ?)
+- statical typing
+- imperative/functional
+- pattern matching

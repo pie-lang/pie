@@ -15,7 +15,7 @@ import math
 import std
 
 /* There must be a main entry */
-func main(argc : int, argv : string[]) : int
+fn main(argc : int, argv : string[]) : int
 {
 	// if is not a statement but expression
 	i = if (true) { 10; } else { 20; } // i is int with type inference
@@ -25,7 +25,7 @@ func main(argc : int, argv : string[]) : int
 	return 0
 }
 
-func test() : void { // void function
+fn test() : void { // void function
 	a = 10
 	a += 10
 	a = a - 10
