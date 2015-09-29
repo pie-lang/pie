@@ -5,10 +5,10 @@
 
 int main(int argc, char **argv)
 {
+	// TODO read file from file
 	pie::compiler::Scanner scanner;
-	scanner.scan();
+	pie::compiler::Parser parser(scanner);
 
-	pie::compiler::Parser parser;
 	parser.parse();
 	return 0;
 }

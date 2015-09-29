@@ -3,39 +3,48 @@
 # as my will, it is a test case for my langauge
 # 
 
-# It is a comment
-
-/* 
+{#
 	It is block comment
-*/
+#}
 
-module main
+module main      # Line comment
 
-import math
+import prelude.*   # imported by default
 import std
 
 /* There must be a main entry */
 fn main(argc : int, argv : string[]) : int
 {
 	// if is not a statement but expression
-	i = if (true) { 10; } else { 20; } // i is int with type inference
+	let i = if (true) { 10; } else { 20; } // i is int with type inference
 
 	test()
 
 	return 0
 }
 
-fn test() : void { // void function
-	a = 10
+
+// anonmous function
+fn get_func() : int -> int {
+	let func = fn (x: int) {
+		return x + 1
+	}
+
+	# last expression returns
+	func
+}
+
+fn test() {
+	let a = 10
 	a += 10
 	a = a - 10
 
 	# Put anything
-	puts a
-	puts "It is a string\n"
-	puts math.rand()
+	puts! a
+	puts! "It is a string\n"
+	puts! math.rand()
 
-	puts 1 + 1
+	puts! 1 + 1
 
 	puts strlen(a)
 
