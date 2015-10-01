@@ -5,10 +5,6 @@
 %x ST_COMMENT_LINE
 
 %{ /* -*- mode: c++ -*- */
-#include "compiler/scanner.h"
-#include "compiler/parser.h"
-#include "compiler/pie.tab.hpp"
-
 #define YYSTYPE pie::compiler::ScannerToken
 #define YYLTYPE int
 #define YY_EXTRA_TYPE pie::compiler::Scanner*
@@ -23,6 +19,10 @@
 #endif
 
 #define RETURN_TOKEN(t) do { DBG_TOKEN(t); return t; } while(0)
+
+#include "compiler/scanner.h"
+#include "compiler/parser.h"
+#include "compiler/pie.tab.hpp"
 
 %}
 
@@ -73,17 +73,23 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 
 [a-zA-Z_][a-zA-Z0-9_]*	{ RETURN_TOKEN(T_INDENTIFIER); }
 
-{ANY_CHAR}			{ return *yytext; }
+{ANY_CHAR}			{ DBG_TOKEN(RAW_TEXT); return *yytext; }
 
 %%
 
 namespace pie { namespace compiler {
 
-Scanner::Scanner()
+Scanner::Scanner(FILE *file)
 {
 	m_line = 0;
 	m_filename = "Unknown";
+	m_file = file ? file : stdin;
+
     yylex_init_extra(this, &m_yyscanner);
+
+	if (file) {
+		yy_switch_to_buffer(yy_create_buffer(file, YY_BUF_SIZE, m_yyscanner), m_yyscanner);
+	}
 }
 
 int Scanner::scan()

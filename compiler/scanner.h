@@ -7,13 +7,18 @@ namespace pie { namespace compiler {
 
 class Scanner {
 public:
-  Scanner();
+  Scanner() : m_file(stdin) {}
+  Scanner(FILE *file);
   ~Scanner();
 
   int scan();
 
+  FILE *file() { return m_file; }
+
+public:
   std::string m_filename;
   int m_line;
+  FILE *m_file;
 
 private:
   void *m_yyscanner;

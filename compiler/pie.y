@@ -109,9 +109,11 @@ expr:
 
 namespace pie { namespace compiler {
 
-void Parser::parse()
+int Parser::parse()
 {
   yyparse(this);
+
+  return 0;
 }
 
 }}

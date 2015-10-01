@@ -18,7 +18,7 @@ class Parser {
 public:
 	Parser(Scanner &s): scanner(s) {}
 	int scan(Token *token);
-	void parse();
+	int parse();
 	void parseFatal(std::string msg);
 
 public:
