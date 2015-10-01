@@ -1,8 +1,8 @@
 %option noyywrap
 %option stack
 
-%x ST_COMMENT
-%x ST_COMMENT_LINE
+%x ST_BLOCK_COMMENT
+%x ST_LINE_COMMENT
 
 %{ /* -*- mode: c++ -*- */
 #define YYSTYPE pie::compiler::ScannerToken
@@ -13,12 +13,19 @@
 #define DEBUG_LEX 1
 
 #if DEBUG_LEX
-#define DBG_TOKEN(t) printf("Get token: %s \"%s\"\n", #t, yytext)
+# define DBG_TOKEN(t) do { 								\
+	if (!getenv("NDEBUG_FLEX")) {						\
+		printf("Get token: %s \"%s\"\n", #t, yytext);	\
+	} 													\
+} while(0)
 #else
-#define DBG_TOKEN(t)
+# define DBG_TOKEN(t)
 #endif
 
-#define RETURN_TOKEN(t) do { DBG_TOKEN(t); return t; } while(0)
+#define RETURN_TOKEN(t) do { 	\
+	DBG_TOKEN(t); 				\
+	return t; 					\
+} while(0)
 
 #include "compiler/scanner.h"
 #include "compiler/parser.h"
@@ -50,22 +57,22 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 "module"		{ RETURN_TOKEN(T_MODULE); }
 "import"		{ RETURN_TOKEN(T_IMPORT); }
 
-"#"				{
-	BEGIN(ST_COMMENT_LINE);
+"{#" {
+	BEGIN(ST_BLOCK_COMMENT);
 	yymore();
 }
 
-<ST_COMMENT_LINE>[^\n\r]*{NEWLINE} {
+<ST_BLOCK_COMMENT>"#}" {
 	BEGIN(INITIAL);
 	RETURN_TOKEN(T_COMMENT);
 }
 
-"{#"{WHITESPACE} {
-	BEGIN(ST_COMMENT);
+"#"				{
+	BEGIN(ST_LINE_COMMENT);
 	yymore();
 }
 
-<ST_COMMENT>"#}" {
+<ST_LINE_COMMENT>[^\n\r]* {
 	BEGIN(INITIAL);
 	RETURN_TOKEN(T_COMMENT);
 }
@@ -73,7 +80,9 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 
 [a-zA-Z_][a-zA-Z0-9_]*	{ RETURN_TOKEN(T_INDENTIFIER); }
 
-{ANY_CHAR}			{ DBG_TOKEN(RAW_TEXT); return *yytext; }
+[()\[\]{}]		{ DBG_TOKEN(RAW_TEXT); return *yytext; }
+
+{ANY_CHAR}		{ printf("Unexpected char: %s", yytext); yyterminate(); }
 
 %%
 
