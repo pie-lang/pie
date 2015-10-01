@@ -23,7 +23,9 @@ int main(int argc, char **argv)
 
 	parser.parse();
 
-	fclose(file);
+	if (file) {
+		fclose(file);
+	}
 
 	return 0;
 }

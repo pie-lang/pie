@@ -5,6 +5,7 @@
 
 {#
 	It is block comment
+	TODO Maybe support doc comment later?
 #}
 
 module main      # Line comment
@@ -12,11 +13,11 @@ module main      # Line comment
 import prelude.*   # imported by default
 import std
 
-/* There must be a main entry */
+{# There must be a main entry #}
 fn main(argc : int, argv : string[]) : int
 {
-	// if is not a statement but expression
-	let i = if (true) { 10; } else { 20; } // i is int with type inference
+	# if is not a statement but expression
+	let i = if (true) { 10; } else { 20; } # i is int with type inference
 
 	test()
 
@@ -24,7 +25,7 @@ fn main(argc : int, argv : string[]) : int
 }
 
 
-// anonmous function
+# anonmous function
 fn get_func() : int -> int {
 	let func = fn (x: int) {
 		return x + 1

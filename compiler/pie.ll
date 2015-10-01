@@ -94,7 +94,17 @@ Scanner::Scanner(FILE *file)
 
 int Scanner::scan()
 {
-	return yylex(m_yyscanner);
+	int tok;
+
+get_next:
+	tok = yylex(m_yyscanner);
+
+	/* Ignore T_COMMENT maybe we need it in reflection? */
+	if (tok == T_COMMENT) {
+		goto get_next;
+	}
+
+	return tok;
 }
 
 Scanner::~Scanner()
