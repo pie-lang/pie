@@ -81,15 +81,15 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 
 start:
 	/* Empty */
-	| module_decl_stmts statements
+	| top_decl_stmts statements
 ;
 
-module_decl_stmts:
+top_decl_stmts:
 	  module_decl_stmt import_stmts
 ;
 
 module_decl_stmt:
-	  T_MODULE T_INDENTIFIER {}
+	  T_MODULE symbol_name {}
 ;
 
 import_stmts:
@@ -102,13 +102,8 @@ import_stmt:
 ;
 
 import_pattern:
-	  import_name
-	| import_name '.' '*'
-;
-
-import_name:
-	  T_INDENTIFIER
-	| import_name '.' T_INDENTIFIER
+	  symbol_name
+	| symbol_name '.' '*' /* import all */
 ;
 
 
