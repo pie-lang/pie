@@ -15,7 +15,7 @@
 
 #if DEBUG_LEX
 # define DBG_TOKEN(t) do { 								\
-	if (!getenv("NDEBUG_FLEX")) {						\
+	if (getenv("DEBUG_FLEX")) {						\
 		printf("T:%d\t%s \"%s\"\n", yylineno, #t, yytext);	\
 	} 													\
 } while(0)
@@ -70,7 +70,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 	yymore();
 }
 
-<ST_BLOCK_COMMENT>[^#]+ {
+<ST_BLOCK_COMMENT>[^#]+ { /* FIXME it should allow contain inline comment inside of block */
 	yymore();
 }
 
