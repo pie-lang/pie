@@ -123,12 +123,11 @@ statement:
 	| T_LET var_name '=' expr
 	| T_RETURN expr
 	| if_stmt
-	| func_call_stmt
 	| expr
 ;
 
-func_call_stmt:
-	T_INDENTIFIER '(' arguments ')'
+func_call:
+	symbol_name '(' arguments ')'
 ;
 
 arguments:
@@ -180,8 +179,9 @@ var_name:
 	T_INDENTIFIER
 ;
 
-symbo_name:
-
+symbol_name:
+	  T_INDENTIFIER
+	| symbol_name '.' T_INDENTIFIER
 ;
 
 expr:
@@ -194,6 +194,7 @@ expr:
 	| expr '/' expr { /* Empty for now */ }
 	| var_name T_PLUS_EUQAL expr
 	| var_name T_MINUS_EUQAL expr
+	| func_call
 	| expr '<' expr
 	| expr '>' expr
 ;
