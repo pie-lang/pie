@@ -180,6 +180,10 @@ var_name:
 	T_INDENTIFIER
 ;
 
+symbo_name:
+
+;
+
 expr:
 	  T_NUMBER
 	| var_name

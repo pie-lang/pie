@@ -8,10 +8,11 @@
 	TODO Maybe support doc comment later?
 #}
 
-module main      # Line comment
+module main
 
 import prelude.*   # imported by default
 import std
+import std.io
 
 {# There must be a main entry #}
 fn main(argc, argv : string[]) : int
@@ -20,7 +21,7 @@ fn main(argc, argv : string[]) : int
 	let i = 10
 	let j = i + 20
 
-	test()
+	io.print(test())
 
 	return 0
 }

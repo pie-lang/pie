@@ -1,1 +1,8 @@
 # io staff
+
+module std.io
+
+fn print()
+{
+
+}

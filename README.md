@@ -3,7 +3,7 @@ pie
 
 The Pie Programming Language
 
-> Status: early prototyping
+My playground for programming langauge design & implementation
 
 Languages I will learn from: Ruby, Rust, Haskell
 
