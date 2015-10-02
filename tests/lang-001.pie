@@ -27,15 +27,11 @@ fn main(argc, argv : string[]) : int
 }
 
 
-# anonmous function
 {#
 fn get_func() : int -> int {
 	let func = fn (x: int) {
 		return x + 1
 	}
-
-	# last expression returns
-	func
 }
 
 #}
