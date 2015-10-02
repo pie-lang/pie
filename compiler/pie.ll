@@ -1,5 +1,6 @@
 %option noyywrap
 %option stack
+%option yylineno
 
 %x ST_BLOCK_COMMENT
 %x ST_LINE_COMMENT
@@ -15,7 +16,7 @@
 #if DEBUG_LEX
 # define DBG_TOKEN(t) do { 								\
 	if (!getenv("NDEBUG_FLEX")) {						\
-		printf("T: %s \"%s\"\n", #t, yytext);	\
+		printf("T:%d\t%s \"%s\"\n", yylineno, #t, yytext);	\
 	} 													\
 } while(0)
 #else
@@ -69,6 +70,10 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 	yymore();
 }
 
+<ST_BLOCK_COMMENT>[^#]+ {
+	yymore();
+}
+
 <ST_BLOCK_COMMENT>"#}" {
 	BEGIN(INITIAL);
 	RETURN_TOKEN(T_COMMENT);
@@ -78,6 +83,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 	BEGIN(ST_LINE_COMMENT);
 	yymore();
 }
+
 
 <ST_LINE_COMMENT>[^\n\r]* {
 	BEGIN(INITIAL);

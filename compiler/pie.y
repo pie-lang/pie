@@ -27,13 +27,13 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 %left '+' '-' '*' '/'
 %left '.'
 
-%token '='
+%left '='
 
 %token '[' ']'
 %token '(' ')'
 %token '{' '}'
 
-%token '>' '<'
+%nonassoc '>' '<'
 
 %token T_COMMENT
 
@@ -183,12 +183,15 @@ var_name:
 expr:
 	  T_NUMBER
 	| var_name
+	| var_name '=' expr
 	| expr '+' expr { printf("WTF\n"); }
 	| expr '-' expr { /* Empty for now */ }
 	| expr '*' expr { /* Empty for now */ }
 	| expr '/' expr { /* Empty for now */ }
 	| var_name T_PLUS_EUQAL expr
 	| var_name T_MINUS_EUQAL expr
+	| expr '<' expr
+	| expr '>' expr
 ;
 
 %%
