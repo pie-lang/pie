@@ -25,6 +25,7 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 
 
 %left '+' '-' '*' '/'
+%left '.'
 
 %token T_COMMENT
 
@@ -66,24 +67,42 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 
 %%
 
-top_statement:
+start:
 	/* Empty */
-	| statements
-	| expr
+	| module_decl_stmts statements
+;
+
+module_decl_stmts:
+	  module_decl_stmt import_stmts
 ;
 
 statements:
-	  func_decl_stmt
-	| module_decl_stmt
-	| import_stmt
+	/* Empty */
+	| expr
+	| func_decl_stmt
 ;
 
 module_decl_stmt:
-	T_MODULE T_INDENTIFIER {}
+	  T_MODULE T_INDENTIFIER {}
+;
+
+import_stmts:
+	/* Empty */
+	| import_stmts import_stmt
 ;
 
 import_stmt:
-	T_IMPORT T_INDENTIFIER {}
+	T_IMPORT import_pattern { }
+;
+
+import_pattern:
+	  import_name
+	| import_name '.' '*'
+;
+
+import_name:
+	  T_INDENTIFIER
+	| import_name '.' T_INDENTIFIER
 ;
 
 func_decl_stmt:
@@ -91,7 +110,7 @@ func_decl_stmt:
 ;
 
 func_body:
-	'{' '}'
+	'{' statements '}'
 ;
 
 parameter_list:

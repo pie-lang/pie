@@ -80,9 +80,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 
 [a-zA-Z_][a-zA-Z0-9_]*	{ RETURN_TOKEN(T_INDENTIFIER); }
 
-[()\[\]{}]		{ DBG_TOKEN(RAW_TEXT); return *yytext; }
-
-{ANY_CHAR}		{ printf("Unexpected char: %s", yytext); yyterminate(); }
+{ANY_CHAR}		{ DBG_TOKEN(RAW_TEXT); return *yytext; }
 
 %%
 
