@@ -93,7 +93,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 
 [a-zA-Z_][a-zA-Z0-9_]*	{ RETURN_TOKEN(T_INDENTIFIER); }
 
-{ANY_CHAR}		{ DBG_TOKEN(T_RAW_TEXT); return *yytext; }
+{ANY_CHAR}		{ DBG_TOKEN(T_RAW_CHAR); return *yytext; }
 
 %%
 
