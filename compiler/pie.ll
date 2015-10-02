@@ -15,7 +15,7 @@
 #if DEBUG_LEX
 # define DBG_TOKEN(t) do { 								\
 	if (!getenv("NDEBUG_FLEX")) {						\
-		printf("Get token: %s \"%s\"\n", #t, yytext);	\
+		printf("T: %s \"%s\"\n", #t, yytext);	\
 	} 													\
 } while(0)
 #else
@@ -56,6 +56,13 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 
 "module"		{ RETURN_TOKEN(T_MODULE); }
 "import"		{ RETURN_TOKEN(T_IMPORT); }
+"let"			{ RETURN_TOKEN(T_LET); }
+
+"+="			{ RETURN_TOKEN(T_PLUS_EUQAL); }
+"-="			{ RETURN_TOKEN(T_MINUS_EUQAL); }
+
+"++"			{ RETURN_TOKEN(T_INC); }
+"--"			{ RETURN_TOKEN(T_DEC); }
 
 "{#" {
 	BEGIN(ST_BLOCK_COMMENT);
@@ -80,7 +87,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 
 [a-zA-Z_][a-zA-Z0-9_]*	{ RETURN_TOKEN(T_INDENTIFIER); }
 
-{ANY_CHAR}		{ DBG_TOKEN(RAW_TEXT); return *yytext; }
+{ANY_CHAR}		{ DBG_TOKEN(T_RAW_TEXT); return *yytext; }
 
 %%
 

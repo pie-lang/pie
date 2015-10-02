@@ -27,6 +27,14 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 %left '+' '-' '*' '/'
 %left '.'
 
+%token '='
+
+%token '[' ']'
+%token '(' ')'
+%token '{' '}'
+
+%token '>' '<'
+
 %token T_COMMENT
 
 /* Keywords */
@@ -53,6 +61,10 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 %token T_GT_EQ
 %token T_EQ
 
+%right T_INC T_DEC
+
+%left T_PLUS_EUQAL T_MINUS_EUQAL
+
 %token T_WHITESPACE
 
 
@@ -74,12 +86,6 @@ start:
 
 module_decl_stmts:
 	  module_decl_stmt import_stmts
-;
-
-statements:
-	/* Empty */
-	| expr
-	| func_decl_stmt
 ;
 
 module_decl_stmt:
@@ -105,8 +111,54 @@ import_name:
 	| import_name '.' T_INDENTIFIER
 ;
 
+
+statements:
+	/* Empty */
+	  statement
+	| statements statement
+;
+
+statement:
+	  func_decl_stmt
+	| T_LET var_name '=' expr
+	| T_RETURN expr
+	| if_stmt
+	| func_call_stmt
+	| expr
+;
+
+func_call_stmt:
+	T_INDENTIFIER '(' arguments ')'
+;
+
+arguments:
+	/* Empty */
+	| argument
+	| arguments ',' argument
+;
+
+argument:
+	expr
+;
+
+if_stmt:
+	/* TODO */
+	T_IF '(' expr ')' '{' statements '}'
+;
+
 func_decl_stmt:
-	T_FUNC T_INDENTIFIER '(' parameter_list ')' func_body
+	T_FUNC T_INDENTIFIER '(' parameter_list ')' return_type func_body
+;
+
+type_name:
+	/* Empty */
+	| T_INDENTIFIER
+	| T_INDENTIFIER '[' ']'
+;
+
+return_type:
+	/* Empty */
+	| ':' type_name
 ;
 
 func_body:
@@ -114,14 +166,29 @@ func_body:
 ;
 
 parameter_list:
-		/* Empty for now */
+	/* Empty for now */
+	| parameter
+	| parameter_list ',' parameter
 ; 
 
+parameter:
+	  T_INDENTIFIER
+	| T_INDENTIFIER ':' type_name
+;
+
+var_name:
+	T_INDENTIFIER
+;
+
 expr:
-	  T_NUMBER '+' T_NUMBER { printf("WTF\n"); }
-	| T_NUMBER '-' T_NUMBER { /* Empty for now */ }
-	| T_NUMBER '*' T_NUMBER { /* Empty for now */ }
-	| T_NUMBER '/' T_NUMBER { /* Empty for now */ }
+	  T_NUMBER
+	| var_name
+	| expr '+' expr { printf("WTF\n"); }
+	| expr '-' expr { /* Empty for now */ }
+	| expr '*' expr { /* Empty for now */ }
+	| expr '/' expr { /* Empty for now */ }
+	| var_name T_PLUS_EUQAL expr
+	| var_name T_MINUS_EUQAL expr
 ;
 
 %%
