@@ -10,6 +10,9 @@
 
 module main
 
+
+# All symbols in module are PUBLIC for now.
+
 import prelude.*   # imported by default
 import std
 import std.io
