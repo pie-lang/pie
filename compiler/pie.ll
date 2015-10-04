@@ -56,7 +56,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 "return"		{ RETURN_TOKEN(T_RETURN); }
 
 "module"		{ RETURN_TOKEN(T_MODULE); }
-"use"			{ RETURN_TOKEN(T_USE); }
+"import"		{ RETURN_TOKEN(T_IMPORT); }
 "let"			{ RETURN_TOKEN(T_LET); }
 
 "+="			{ RETURN_TOKEN(T_PLUS_EUQAL); }

@@ -39,7 +39,7 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 
 /* Keywords */
 %token T_MODULE
-%token T_USE
+%token T_IMPORT
 %token T_AS
 
 %token T_FUNC
@@ -85,25 +85,25 @@ start:
 ;
 
 top_decl_stmts:
-	  module_decl_stmt use_stmts
+	  module_decl_stmt import_stmts
 ;
 
 module_decl_stmt:
 	  T_MODULE symbol_name {}
 ;
 
-use_stmts:
+import_stmts:
 	/* Empty */
-	| use_stmts use_stmt
+	| import_stmts import_stmt
 ;
 
-use_stmt:
-	T_USE use_pattern { }
+import_stmt:
+	T_IMPORT import_pattern { }
 ;
 
-use_pattern:
+import_pattern:
 	  symbol_name
-	| symbol_name '.' '*' /* use all */
+	| symbol_name '.' '*' /* import all */
 ;
 
 

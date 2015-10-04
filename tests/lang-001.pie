@@ -10,9 +10,9 @@
 
 module main
 
-use prelude.*   # imported by default
-use std
-use std.io
+import prelude.*   # imported by default
+import std
+import std.io
 
 {# There must be a main entry #}
 fn main(argc, argv : string[]) : int
