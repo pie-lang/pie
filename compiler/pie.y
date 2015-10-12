@@ -29,6 +29,8 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 
 %left '='
 
+%token ';'
+
 %token '[' ']'
 %token '(' ')'
 %token '{' '}'
@@ -41,6 +43,7 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 %token T_MODULE
 %token T_IMPORT
 %token T_AS
+%token T_ACC_PUBLIC
 
 %token T_FUNC
 %token T_RETURN
@@ -82,6 +85,11 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 start:
 	/* Empty */
 	| top_decl_stmts statements
+;
+
+visibility:
+	/* Empty */ { /* private */}
+	| T_ACC_PUBLIC {}
 ;
 
 top_decl_stmts:
@@ -141,7 +149,7 @@ if_stmt:
 ;
 
 func_decl_stmt:
-	T_FUNC T_INDENTIFIER '(' parameter_list ')' return_type func_body
+	visibility T_FUNC T_INDENTIFIER '(' parameter_list ')' return_type func_body
 ;
 
 type_name:

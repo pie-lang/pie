@@ -59,6 +59,8 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 "import"		{ RETURN_TOKEN(T_IMPORT); }
 "let"			{ RETURN_TOKEN(T_LET); }
 
+"pub"			{ RETURN_TOKEN(T_ACC_PUBLIC); }
+
 "+="			{ RETURN_TOKEN(T_PLUS_EUQAL); }
 "-="			{ RETURN_TOKEN(T_MINUS_EUQAL); }
 

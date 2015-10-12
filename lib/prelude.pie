@@ -1,1 +1,13 @@
 # This is a builtin library
+
+module prelude
+
+pub fn map()
+{
+	return
+}
+
+fn join()
+{
+
+}
