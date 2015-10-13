@@ -208,9 +208,7 @@ namespace pie { namespace compiler {
 
 int Parser::parse()
 {
-  yyparse(this);
-
-  return 0;
+  return yyparse(this);
 }
 
 }}
