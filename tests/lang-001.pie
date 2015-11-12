@@ -10,9 +10,12 @@
 
 module main
 
+
+# Now module import
 import prelude.*   # imported by default
 import std
-import std.io
+
+public import std.io      # imported module are not export automatically
 
 {# There must be a main entry #}
 fn main(argc, argv : string[]) : int
@@ -36,7 +39,7 @@ fn get_func() : int -> int {
 
 #}
 
-pub fn test() {
+public fn test() {
 	let a = 10
 	a += 10
 	a = a - 10

@@ -83,8 +83,11 @@ static int yylex(YYSTYPE *token, Parser *_p) {
 %%
 
 start:
-	/* Empty */
-	| top_decl_stmts statements
+	top_decl_stmts
+;
+
+top_decl_stmts:
+	  module_decl_stmt import_stmts statements
 ;
 
 visibility:
@@ -92,28 +95,23 @@ visibility:
 	| T_ACC_PUBLIC {}
 ;
 
-top_decl_stmts:
-	  module_decl_stmt import_stmts
-;
-
 module_decl_stmt:
 	  T_MODULE symbol_name {}
 ;
 
 import_stmts:
-	/* Empty */
-	| import_stmts import_stmt
+	  import_stmts import_stmt
+	| /* Empty */
 ;
 
 import_stmt:
-	T_IMPORT import_pattern { }
+	  visibility T_IMPORT import_pattern_name { }
 ;
 
-import_pattern:
+import_pattern_name:
 	  symbol_name
-	| symbol_name '.' '*' /* import all */
+	| symbol_name '.' '*' /* import all public symbol */
 ;
-
 
 statements:
 	/* Empty */

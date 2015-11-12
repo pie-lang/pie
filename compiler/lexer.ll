@@ -15,7 +15,7 @@
 
 #if DEBUG_LEX
 # define DBG_TOKEN(t) do { 								\
-	if (getenv("DEBUG_FLEX")) {						\
+	if (getenv("DEBUG_LEX")) {						\
 		printf("T:%d\t%s \"%s\"\n", yylineno, #t, yytext);	\
 	} 													\
 } while(0)
@@ -30,7 +30,7 @@
 
 #include "compiler/scanner.h"
 #include "compiler/parser.h"
-#include "compiler/pie.tab.hpp"
+#include "compiler/parser.tab.hpp"
 
 %}
 
@@ -59,7 +59,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 "import"		{ RETURN_TOKEN(T_IMPORT); }
 "let"			{ RETURN_TOKEN(T_LET); }
 
-"pub"			{ RETURN_TOKEN(T_ACC_PUBLIC); }
+"public"		{ RETURN_TOKEN(T_ACC_PUBLIC); }
 
 "+="			{ RETURN_TOKEN(T_PLUS_EUQAL); }
 "-="			{ RETURN_TOKEN(T_MINUS_EUQAL); }

@@ -48,8 +48,8 @@ CPackSourceConfig.cmake
 
 
 # Ignore generated file for now
-compiler/lex.yy.cpp
-compiler/pie.tab.cpp
-compiler/pie.tab.hpp
+compiler/lexer.yy.cpp
+compiler/parser.tab.cpp
+compiler/parser.tab.hpp
 
 main/pie
