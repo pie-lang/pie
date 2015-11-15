@@ -3,8 +3,17 @@
 
 namespace pie { namespace compiler {
 
+
 class Node {
 	Node();
+};
+
+class Visitor {
+public:
+	virtual void visit(Node *node)
+	{
+	
+	}
 };
 
 }}
