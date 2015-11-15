@@ -16,3 +16,7 @@ The features I want to Pie to have:
 - statical typing
 - imperative/functional
 - pattern matching
+
+
+
+With a register-based virtual machine. hopefully I will add other backend one day.
