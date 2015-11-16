@@ -2,8 +2,9 @@
 #define __PIE_BACKEND_VM__
 
 #include "compiler/ast.h"
-#include "compiler/ast/premitive_node.h"
-#include "compiler/ast/assign_node.h"
+#include "compiler/ast/op.h"
+#include "compiler/ast/primitive.h"
+#include "compiler/ast/assign.h"
 
 #include "runtime/vm/bytecode.h"
 

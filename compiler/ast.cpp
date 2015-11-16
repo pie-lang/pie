@@ -2,9 +2,5 @@
 
 namespace pie { namespace compiler {
 
-Node::Node()
-{
-
-}
 
 }}

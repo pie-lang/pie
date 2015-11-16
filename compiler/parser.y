@@ -96,7 +96,7 @@ visibility:
 ;
 
 module_decl_stmt:
-	  T_MODULE symbol_name {}
+	  T_MODULE symbol_name { _p->onModule($2);}
 ;
 
 import_stmts:
@@ -105,7 +105,7 @@ import_stmts:
 ;
 
 import_stmt:
-	  visibility T_IMPORT import_pattern_name { }
+	  visibility T_IMPORT import_pattern_name { _p->onImport($3, $1); }
 ;
 
 import_pattern_name:
