@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "compiler/scanner.h"
 #include "compiler/parser.h"
 
