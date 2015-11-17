@@ -3,6 +3,11 @@ pie
 
 The Pie Programming Language
 
+Build status: 
+[![Build Status](https://secure.travis-ci.org/pie-lang/pie.svg)]
+(https://travis-ci.org/pie-lang/pie)
+
+
 My playground for programming langauge design & implementation
 
 Languages I will learn from: Ruby, Rust, Haskell
@@ -16,6 +21,7 @@ The features I want to Pie to have:
 - statical typing
 - imperative/functional
 - pattern matching
+- type safe
 
 
 

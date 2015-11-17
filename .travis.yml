@@ -1,0 +1,16 @@
+language: c++
+sudo: false
+addons:
+  apt:
+    packages:
+      - cmake
+
+notifications:
+    email: 
+       - reeze.xia@gmail.com
+
+cache: 
+    - apt
+
+script:
+    - cmake . && make
