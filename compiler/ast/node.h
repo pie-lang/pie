@@ -39,7 +39,7 @@ AST_NODES
 
 class Node {
 public:
-	Node(): visited(0), extended_value(0) {}
+	Node(): visited(0), attr(0) {}
 
 	void reset()
 	{
@@ -55,7 +55,7 @@ public:
 
 public:
 	bool visited;
-	int extended_value;
+	int attr;
 
 	std::vector<Node *> children;
 };
