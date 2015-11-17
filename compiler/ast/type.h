@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "compiler/ast.h"
+#include "compiler/ast/node.h"
 
 namespace pie { namespace compiler {
 
@@ -13,6 +13,8 @@ public:
 	std::string name;  // function type ? or object ? TODO
 
 	bool is_array; // Maybe there is a better way
+
+	DEFINE_NODE(TypeNode);
 };
 
 }}

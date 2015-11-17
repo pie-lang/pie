@@ -1,7 +1,9 @@
 #ifndef __PIE_AST_PRIMITIVE__
 #define __PIE_AST_PRIMITIVE__
 
-#include "compiler/ast.h"
+#include <string>
+
+#include "compiler/ast/node.h"
 
 namespace pie { namespace compiler {
 
@@ -15,6 +17,17 @@ public:
 	IntNode(int value) : value(value) {}
 
 	DEFINE_NODE(IntNode);
+};
+
+
+class StringNode : Node
+{
+public:
+	std::string str;
+
+	StringNode(std::string str) : str(str) {}
+
+	DEFINE_NODE(StringNode);
 };
 
 }}

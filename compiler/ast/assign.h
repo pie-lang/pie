@@ -1,7 +1,7 @@
 #ifndef __PIE_AST_ASSIGN__
 #define __PIE_AST_ASSIGN__
 
-#include "compiler/ast.h"
+#include "compiler/ast/node.h"
 
 namespace pie { namespace compiler {
 
@@ -13,14 +13,7 @@ public:
 
 	AssignNode(Node *var, Node *value) : var(var), value(value) {}
 
-	void visit(Visitor *visitor)
-	{
-		visitor->visit(var);
-		visitor->visit(value);
-
-		visitor->visit(this);
-	}
-
+	DEFINE_NODE(AssignNode);
 };
 
 

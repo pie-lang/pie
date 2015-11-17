@@ -38,5 +38,10 @@ int main(int argc, char **argv)
 	PrintVisitor visitor;
 	module->visit(&visitor);
 
+	// stdout << visitor;
+
+
+	// TODO vm compiler compile to IR or bytecode directly?
+
 	return 0;
 }

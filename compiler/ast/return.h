@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "compiler/ast.h"
+#include "compiler/ast/node.h"
 
 namespace pie { namespace compiler {
 
@@ -16,6 +16,8 @@ public:
 	{
 		push(node);
 	}
+
+	DEFINE_NODE(ReturnNode);
 };
 
 }}

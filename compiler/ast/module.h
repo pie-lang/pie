@@ -1,11 +1,10 @@
 #ifndef __PIE_AST_MODULE__
 #define __PIE_AST_MODULE__
 
-#include <string>
-#include <vector>
-#include <map>
+#include "compiler/ast/node.h"
 
-#include "compiler/ast.h"
+#include <string>
+#include <map>
 
 namespace pie { namespace compiler {
 

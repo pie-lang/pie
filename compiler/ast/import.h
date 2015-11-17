@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "compiler/ast.h"
+#include "compiler/ast/node.h"
 
 namespace pie { namespace compiler {
 
@@ -13,6 +13,8 @@ public:
 	std::string module_name;
 
 	int access_level;
+
+	DEFINE_NODE(ImportNode);
 };
 
 }}
