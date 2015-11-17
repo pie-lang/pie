@@ -16,7 +16,7 @@ public:
 
 	IntNode(int value) : value(value) {}
 
-	DEFINE_NODE(IntNode);
+	DEFINE_VISIT(IntNode);
 };
 
 
@@ -27,7 +27,7 @@ public:
 
 	StringNode(std::string str) : str(str) {}
 
-	DEFINE_NODE(StringNode);
+	DEFINE_VISIT(StringNode);
 };
 
 }}

@@ -14,7 +14,7 @@ public:
 	std::string name;
 	std::map<std::string, Node *> symtab;
 
-	DEFINE_NODE(ModuleNode);
+	DEFINE_VISIT(ModuleNode);
 
 	// statements are in children
 };

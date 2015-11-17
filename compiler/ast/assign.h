@@ -13,7 +13,7 @@ public:
 
 	AssignNode(Node *var, Node *value) : var(var), value(value) {}
 
-	DEFINE_NODE(AssignNode);
+	DEFINE_VISIT(AssignNode);
 };
 
 

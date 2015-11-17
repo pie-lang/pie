@@ -23,7 +23,7 @@ public:
 
 	// statements are in children
 
-	DEFINE_NODE(FunctionNode);
+	DEFINE_VISIT(FunctionNode);
 };
 
 class ClosureNode : Node {
@@ -32,7 +32,7 @@ public:
 
 	TypeNode *return_type;
 
-	DEFINE_NODE(ClosureNode);
+	DEFINE_VISIT(ClosureNode);
 };
 
 
@@ -42,7 +42,7 @@ public:
 	std::string name;
 
 	// arguments are in children
-	DEFINE_NODE(FunctionCallNode);
+	DEFINE_VISIT(FunctionCallNode);
 };
 
 }}

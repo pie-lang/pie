@@ -20,10 +20,10 @@
 
 #define NODE_PUSH_CHILD(node)	this->children.push_back(node)
 
-#define DECLARE_VISITOR_INTERFACE(node)	virtual void visit(node *node) = 0;
-#define DECLARE_VISITOR(node)			virtual void visit(node *node);
+#define DECLARE_VISIT_INTERFACE(node)	virtual void visit(node *node) = 0;
+#define DECLARE_VISIT(node)				virtual void visit(node *node);
 
-#define DEFINE_NODE(node)				void visit(Visitor *visitor) {		\
+#define DEFINE_VISIT(node)				void visit(Visitor *visitor) {		\
 											visitor->visit(this);			\
 										}
 
@@ -65,7 +65,7 @@ public:
 	virtual void visit(Node *node) = 0;
 
 	// declare visit handlers
-	#define AST_NODE DECLARE_VISITOR_INTERFACE
+	#define AST_NODE DECLARE_VISIT_INTERFACE
 	AST_NODES
 	#undef AST_NODE
 };

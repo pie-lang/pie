@@ -19,7 +19,7 @@ public:
 		push(rhs);	
 	}
 
-	DEFINE_NODE(BinaryOpNode);
+	DEFINE_VISIT(BinaryOpNode);
 };
 
 class UnaryOpNode : Node
@@ -34,7 +34,7 @@ public:
 		push(expr);
 	}
 
-	DEFINE_NODE(UnaryOpNode);
+	DEFINE_VISIT(UnaryOpNode);
 };
 
 }}

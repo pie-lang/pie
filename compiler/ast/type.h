@@ -14,7 +14,7 @@ public:
 
 	bool is_array; // Maybe there is a better way
 
-	DEFINE_NODE(TypeNode);
+	DEFINE_VISIT(TypeNode);
 };
 
 }}

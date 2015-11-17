@@ -14,7 +14,7 @@ public:
 
 	int access_level;
 
-	DEFINE_NODE(ImportNode);
+	DEFINE_VISIT(ImportNode);
 };
 
 }}
