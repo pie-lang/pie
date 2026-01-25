@@ -7,27 +7,44 @@
 
 namespace pie { namespace compiler {
 
-/* Do I really need such a simple node? */
-// Only Int Node for now.... for simplicity
-class IntNode : Node 
+class IntNode : public Node
 {
 public:
-	int value;
+	int64_t value;
 
-	IntNode(int value) : value(value) {}
+	IntNode(int64_t value) : value(value) {}
 
 	DEFINE_VISIT(IntNode);
 };
 
+class DoubleNode : public Node
+{
+public:
+	double value;
 
-class StringNode : Node
+	DoubleNode(double value) : value(value) {}
+
+	DEFINE_VISIT(DoubleNode);
+};
+
+class StringNode : public Node
 {
 public:
 	std::string str;
 
-	StringNode(std::string str) : str(str) {}
+	StringNode(const std::string &str) : str(str) {}
 
 	DEFINE_VISIT(StringNode);
+};
+
+class IdentifierNode : public Node
+{
+public:
+	std::string name;
+
+	IdentifierNode(const std::string &name) : name(name) {}
+
+	DEFINE_VISIT(IdentifierNode);
 };
 
 }}

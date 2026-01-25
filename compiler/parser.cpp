@@ -1,35 +1,113 @@
 #include <stdio.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "compiler/scanner.h"
 #include "compiler/parser.h"
-
-#include "compiler/ast/module.h"
+#include "compiler/parser.tab.hpp"
 
 namespace pie { namespace compiler {
 
-Parser::Parser(Scanner &s) : scanner(s)
+Parser::Parser(Scanner &s) : scanner(s), function(nullptr)
 {
-	module = new ModuleNode();
+    module = new ModuleNode();
 }
 
 void Parser::parseFatal(std::string msg)
 {
-  printf("%s\n", msg.c_str());
+    fprintf(stderr, "Parse error at line %d: %s\n", scanner.m_line, msg.c_str());
 }
 
-int Parser::scan(Token *token)
+int Parser::scan(void *token_ptr)
 {
-  return scanner.scan();
+    YYSTYPE *token = (YYSTYPE *)token_ptr;
+    int tok = scanner.scan();
+
+    // Fill in the semantic value based on token type
+    if (tok == T_IDENTIFIER) {
+        token->str = new std::string(scanner.tokenText(), scanner.tokenLength());
+    } else if (tok == T_NUMBER) {
+        token->num = atoll(scanner.tokenText());
+    } else if (tok == T_DOUBLE) {
+        token->dbl = atof(scanner.tokenText());
+    } else if (tok == T_STRING) {
+        // For strings, use the accumulated string buffer content
+        token->str = new std::string(scanner.stringValue());
+    } else if (tok == T_ACC_PUBLIC) {
+        token->visibility = 1;
+    }
+
+    return tok;
 }
 
-void Parser::onModule(std::string name)
+// AST building helpers
+Node *Parser::makeInt(int64_t value)
 {
-	module->name = name;
+    return new IntNode(value);
 }
 
-void Parser::onImport(std::string name, int visibility)
+Node *Parser::makeDouble(double value)
 {
+    return new DoubleNode(value);
+}
 
+Node *Parser::makeString(const std::string &str)
+{
+    return new StringNode(str);
+}
+
+Node *Parser::makeIdentifier(const std::string &name)
+{
+    return new IdentifierNode(name);
+}
+
+Node *Parser::makeBinaryOp(BinaryOp op, Node *lhs, Node *rhs)
+{
+    return new BinaryOpNode(op, lhs, rhs);
+}
+
+Node *Parser::makeUnaryOp(UnaryOp op, Node *expr)
+{
+    return new UnaryOpNode(op, expr);
+}
+
+Node *Parser::makeFunctionCall(const std::string &name, std::vector<Node*> &args)
+{
+    FunctionCallNode *call = new FunctionCallNode(name);
+    for (Node *arg : args) {
+        call->push(arg);
+    }
+    return call;
+}
+
+Node *Parser::makeLet(const std::string &name, TypeNode *type, Node *value)
+{
+    return new LetNode(name, type, value);
+}
+
+Node *Parser::makeAssign(Node *var, Node *value)
+{
+    return new AssignNode(var, value);
+}
+
+Node *Parser::makeReturn(Node *expr)
+{
+    return new ReturnNode(expr);
+}
+
+Node *Parser::makeIf(Node *cond, BlockNode *then_block, Node *else_block)
+{
+    return new IfNode(cond, then_block, else_block);
+}
+
+BlockNode *Parser::makeBlock()
+{
+    return new BlockNode();
+}
+
+TypeNode *Parser::makeType(const std::string &name, bool isArray)
+{
+    return new TypeNode(name, isArray);
 }
 
 }}

@@ -2,21 +2,33 @@
 #define __PIE_BACKEND_PRINT__
 
 #include <string>
-#include <vector>
-#include <map>
+#include <sstream>
 
 #include "compiler/ast.h"
 
 namespace pie { namespace compiler {
 
-class PrintVistor : Visitor
+class PrintVisitor : public Visitor
 {
 public:
-	std::string out; // output str TODO use stream instead
+    PrintVisitor() : indent_level(0) {}
 
-	#define AST_NODE DECLARE_VISITOR
-	AST_NODES
-	#undef AST_NODE
+    std::string output() const { return out.str(); }
+
+    void visit(Node *node) override;
+
+    #define AST_NODE DECLARE_VISIT
+    AST_NODES
+    #undef AST_NODE
+
+private:
+    std::stringstream out;
+    int indent_level;
+
+    void indent();
+    void newline();
+    std::string binaryOpToString(BinaryOp op);
+    std::string unaryOpToString(UnaryOp op);
 };
 
 }}

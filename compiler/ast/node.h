@@ -10,11 +10,17 @@
 	AST_NODE(ClosureNode)		\
 	AST_NODE(FunctionCallNode)	\
 	AST_NODE(AssignNode)		\
+	AST_NODE(LetNode)			\
 	AST_NODE(TypeNode)			\
 	AST_NODE(IntNode)			\
+	AST_NODE(DoubleNode)		\
 	AST_NODE(StringNode)		\
-	AST_NODE(BinarNode)			\
-	AST_NODE(UnaryNode)
+	AST_NODE(IdentifierNode)	\
+	AST_NODE(BinaryOpNode)		\
+	AST_NODE(UnaryOpNode)		\
+	AST_NODE(ReturnNode)		\
+	AST_NODE(IfNode)			\
+	AST_NODE(BlockNode)
 
 #define NEW_NODE(type, ...) new type ## Node(__VA_ARGS__)
 
