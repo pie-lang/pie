@@ -7,12 +7,15 @@
 
 namespace pie { namespace compiler {
 
-class TypeNode : Node 
+class TypeNode : public Node
 {
 public:
-	std::string name;  // function type ? or object ? TODO
+	std::string name;
+	bool is_array;
 
-	bool is_array; // Maybe there is a better way
+	TypeNode() : is_array(false) {}
+	TypeNode(const std::string &name, bool is_array = false)
+		: name(name), is_array(is_array) {}
 
 	DEFINE_VISIT(TypeNode);
 };

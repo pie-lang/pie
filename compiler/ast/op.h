@@ -5,31 +5,58 @@
 
 namespace pie { namespace compiler {
 
-class BinaryOpNode : Node
+// Binary operator types
+enum class BinaryOp {
+	Add,      // +
+	Sub,      // -
+	Mul,      // *
+	Div,      // /
+	Mod,      // %
+	Lt,       // <
+	Gt,       // >
+	Le,       // <=
+	Ge,       // >=
+	Eq,       // ==
+	Ne,       // !=
+	And,      // &&
+	Or,       // ||
+	Assign,   // =
+	AddAssign,// +=
+	SubAssign,// -=
+	Dot       // .
+};
+
+// Unary operator types
+enum class UnaryOp {
+	Neg,      // -
+	Not,      // !
+	Inc,      // ++
+	Dec       // --
+};
+
+class BinaryOpNode : public Node
 {
 public:
 	Node *lhs;
 	Node *rhs;
+	BinaryOp op;
 
-	int op;
-
-	BinaryOpNode(int op, Node *lhs, Node *rhs) : op(op), lhs(lhs), rhs(rhs)
+	BinaryOpNode(BinaryOp op, Node *lhs, Node *rhs) : op(op), lhs(lhs), rhs(rhs)
 	{
 		push(lhs);
-		push(rhs);	
+		push(rhs);
 	}
 
 	DEFINE_VISIT(BinaryOpNode);
 };
 
-class UnaryOpNode : Node
+class UnaryOpNode : public Node
 {
 public:
 	Node *expr;
+	UnaryOp op;
 
-	int op;
-
-	UnaryOpNode(int op, Node *expr) : op(op), expr(expr)
+	UnaryOpNode(UnaryOp op, Node *expr) : op(op), expr(expr)
 	{
 		push(expr);
 	}

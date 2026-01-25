@@ -8,11 +8,13 @@
 
 namespace pie { namespace compiler {
 
-class ModuleNode : Node 
+class ModuleNode : public Node
 {
 public:
 	std::string name;
 	std::map<std::string, Node *> symtab;
+	std::vector<ImportNode *> imports;
+	std::vector<FunctionNode *> functions;
 
 	DEFINE_VISIT(ModuleNode);
 

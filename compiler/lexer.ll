@@ -1,12 +1,13 @@
 %option noyywrap
 %option stack
 %option yylineno
+%option reentrant
 
 %x ST_BLOCK_COMMENT
 %x ST_LINE_COMMENT
+%x ST_STRING
 
 %{ /* -*- mode: c++ -*- */
-#define YYSTYPE pie::compiler::ScannerToken
 #define YYLTYPE int
 #define YY_EXTRA_TYPE pie::compiler::Scanner*
 #define _scanner yyextra
@@ -29,8 +30,9 @@
 } while(0)
 
 #include "compiler/scanner.h"
-#include "compiler/parser.h"
 #include "compiler/parser.tab.hpp"
+
+static std::string string_buffer;
 
 %}
 
@@ -46,6 +48,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 %%
 
 {NUMBER}		{ RETURN_TOKEN(T_NUMBER); }
+{DOUBLE}		{ RETURN_TOKEN(T_DOUBLE); }
 
 {NEWLINE}		{ _scanner->m_line++; }
 {WHITESPACE}	{ /* Skip white spaces */  }
@@ -61,11 +64,19 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 
 "public"		{ RETURN_TOKEN(T_ACC_PUBLIC); }
 
-"+="			{ RETURN_TOKEN(T_PLUS_EUQAL); }
-"-="			{ RETURN_TOKEN(T_MINUS_EUQAL); }
+"+="			{ RETURN_TOKEN(T_PLUS_EQUAL); }
+"-="			{ RETURN_TOKEN(T_MINUS_EQUAL); }
 
 "++"			{ RETURN_TOKEN(T_INC); }
 "--"			{ RETURN_TOKEN(T_DEC); }
+
+"<="			{ RETURN_TOKEN(T_LE); }
+">="			{ RETURN_TOKEN(T_GE); }
+"=="			{ RETURN_TOKEN(T_EQ); }
+"!="			{ RETURN_TOKEN(T_NE); }
+
+"&&"			{ RETURN_TOKEN(T_AND); }
+"||"			{ RETURN_TOKEN(T_OR); }
 
 "{#" {
 	BEGIN(ST_BLOCK_COMMENT);
@@ -92,8 +103,25 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 	RETURN_TOKEN(T_COMMENT);
 }
 
+\" {
+	BEGIN(ST_STRING);
+	string_buffer.clear();
+}
 
-[a-zA-Z_][a-zA-Z0-9_]*	{ RETURN_TOKEN(T_INDENTIFIER); }
+<ST_STRING>\" {
+	BEGIN(INITIAL);
+	RETURN_TOKEN(T_STRING);
+}
+
+<ST_STRING>\\n  { string_buffer += '\n'; }
+<ST_STRING>\\t  { string_buffer += '\t'; }
+<ST_STRING>\\r  { string_buffer += '\r'; }
+<ST_STRING>\\\\ { string_buffer += '\\'; }
+<ST_STRING>\\\" { string_buffer += '"'; }
+<ST_STRING>[^\\\"]+ { string_buffer += yytext; }
+
+
+[a-zA-Z_][a-zA-Z0-9_]*	{ RETURN_TOKEN(T_IDENTIFIER); }
 
 {ANY_CHAR}		{ DBG_TOKEN(T_RAW_CHAR); return *yytext; }
 
@@ -107,10 +135,10 @@ Scanner::Scanner(FILE *file)
 	m_filename = "Unknown";
 	m_file = file ? file : stdin;
 
-    yylex_init_extra(this, &m_yyscanner);
+    yylex_init_extra(this, (yyscan_t*)&m_yyscanner);
 
 	if (file) {
-		yy_switch_to_buffer(yy_create_buffer(file, YY_BUF_SIZE, m_yyscanner), m_yyscanner);
+		yy_switch_to_buffer(yy_create_buffer(file, YY_BUF_SIZE, (yyscan_t)m_yyscanner), (yyscan_t)m_yyscanner);
 	}
 }
 
@@ -119,7 +147,7 @@ int Scanner::scan()
 	int tok;
 
 get_next:
-	tok = yylex(m_yyscanner);
+	tok = yylex((yyscan_t)m_yyscanner);
 
 	/* Ignore T_COMMENT maybe we need it in reflection? */
 	if (tok == T_COMMENT) {
@@ -129,9 +157,24 @@ get_next:
 	return tok;
 }
 
+const char *Scanner::tokenText() const
+{
+	return yyget_text((yyscan_t)m_yyscanner);
+}
+
+int Scanner::tokenLength() const
+{
+	return yyget_leng((yyscan_t)m_yyscanner);
+}
+
+const std::string &Scanner::stringValue() const
+{
+	return string_buffer;
+}
+
 Scanner::~Scanner()
 {
-	yylex_destroy(m_yyscanner);
+	yylex_destroy((yyscan_t)m_yyscanner);
 }
 
 }}
