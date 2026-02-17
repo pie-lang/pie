@@ -15,6 +15,7 @@ void printUsage(const char *prog)
     fprintf(stderr, "Usage: %s [options] <file.pie>\n", prog);
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  --print    Print the AST (don't execute)\n");
+    fprintf(stderr, "  --debug    Run interpreter with step-by-step debugger\n");
     fprintf(stderr, "  --help     Show this help message\n");
 }
 
@@ -22,12 +23,15 @@ int main(int argc, char **argv)
 {
     FILE *file = NULL;
     bool print_mode = false;
+    bool debug_mode = false;
     const char *filename = nullptr;
 
     // Parse command line arguments
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--print") == 0) {
             print_mode = true;
+        } else if (strcmp(argv[i], "--debug") == 0) {
+            debug_mode = true;
         } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             printUsage(argv[0]);
             return 0;
@@ -76,6 +80,7 @@ int main(int argc, char **argv)
         // Execution mode: run the program
         try {
             EvalVisitor interpreter;
+            interpreter.setDebugMode(debug_mode);
             Value result = interpreter.run(module);
 
             // If main returned a value, use it as exit code
