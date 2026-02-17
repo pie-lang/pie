@@ -168,6 +168,14 @@ public:
         throw std::runtime_error("Undefined variable: " + name);
     }
 
+    const std::map<std::string, Value> &variables() const {
+        return vars;
+    }
+
+    const Environment *parentEnv() const {
+        return parent;
+    }
+
 private:
     std::map<std::string, Value> vars;
     Environment *parent;
@@ -178,6 +186,7 @@ class EvalVisitor : public Visitor
 {
 public:
     EvalVisitor();
+    void setDebugMode(bool enabled);
 
     Value evaluate(Node *node);
     Value run(ModuleNode *module);
@@ -193,9 +202,18 @@ private:
     Environment *env;
     Environment global_env;
     ModuleNode *current_module;
+    bool debug_mode;
+    bool debug_continue;
+    size_t debug_step;
+    size_t debug_depth;
 
     void registerBuiltins();
     Value callFunction(FunctionNode *fn, std::vector<Value> &args);
+    void debugBefore(Node *node);
+    std::string debugNodeText(Node *node);
+    void debugPrintEnvironment() const;
+    void debugPrintHelp() const;
+    void debugPrintValue(const std::string &name) const;
 };
 
 }}

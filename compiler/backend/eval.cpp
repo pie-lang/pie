@@ -1,13 +1,173 @@
 #include "compiler/backend/eval.h"
+#include "compiler/backend/print.h"
 #include <iostream>
 #include <cstdlib>
+#include <sstream>
+#include <cctype>
 
 namespace pie { namespace compiler {
 
 EvalVisitor::EvalVisitor()
-    : env(&global_env), current_module(nullptr)
+    : env(&global_env), current_module(nullptr), debug_mode(false), debug_continue(false), debug_step(0), debug_depth(0)
 {
     registerBuiltins();
+}
+
+void EvalVisitor::setDebugMode(bool enabled)
+{
+    debug_mode = enabled;
+    debug_continue = false;
+    debug_step = 0;
+    debug_depth = 0;
+}
+
+static std::string trimLine(const std::string &line)
+{
+    size_t start = 0;
+    while (start < line.size() && std::isspace(static_cast<unsigned char>(line[start]))) {
+        start++;
+    }
+
+    if (start >= line.size()) {
+        return "";
+    }
+
+    size_t end = line.size();
+    while (end > start && std::isspace(static_cast<unsigned char>(line[end - 1]))) {
+        end--;
+    }
+
+    return line.substr(start, end - start);
+}
+
+std::string EvalVisitor::debugNodeText(Node *node)
+{
+    if (!node) {
+        return "<null>";
+    }
+
+    if (ModuleNode *module = dynamic_cast<ModuleNode*>(node)) {
+        return "module " + module->name;
+    }
+    if (FunctionNode *fn = dynamic_cast<FunctionNode*>(node)) {
+        return "fn " + fn->name;
+    }
+    if (BlockNode *block = dynamic_cast<BlockNode*>(node)) {
+        std::stringstream ss;
+        ss << "block(" << block->children.size() << " statements)";
+        return ss.str();
+    }
+
+    PrintVisitor printer;
+    node->visit(&printer);
+    std::string text = printer.output();
+    std::string line;
+    std::stringstream ss(text);
+    while (std::getline(ss, line)) {
+        std::string trimmed = trimLine(line);
+        if (!trimmed.empty()) {
+            return trimmed;
+        }
+    }
+    return "<node>";
+}
+
+void EvalVisitor::debugPrintEnvironment() const
+{
+    std::cout << "      scope chain:" << std::endl;
+
+    const Environment *scope = env;
+    size_t depth = 0;
+    while (scope) {
+        std::cout << "        [scope " << depth << "]";
+        const auto &vars = scope->variables();
+        if (vars.empty()) {
+            std::cout << " (empty)";
+        }
+        std::cout << std::endl;
+
+        for (const auto &entry : vars) {
+            std::cout << "          " << entry.first << " = " << entry.second.toString() << std::endl;
+        }
+
+        scope = scope->parentEnv();
+        depth++;
+    }
+}
+
+void EvalVisitor::debugPrintHelp() const
+{
+    std::cout << "[debug] commands:" << std::endl;
+    std::cout << "        s/step (or empty): step to next node" << std::endl;
+    std::cout << "        c/continue: run without stopping" << std::endl;
+    std::cout << "        p/print: print all scopes" << std::endl;
+    std::cout << "        p <name>: print one variable from the scope chain" << std::endl;
+    std::cout << "        h/help: show this help" << std::endl;
+    std::cout << "        q/quit: stop program execution" << std::endl;
+}
+
+void EvalVisitor::debugPrintValue(const std::string &name) const
+{
+    try {
+        Value value = env->get(name);
+        std::cout << "[debug] " << name << " = " << value.toString() << std::endl;
+    } catch (const std::exception &) {
+        std::cout << "[debug] variable not found: " << name << std::endl;
+    }
+}
+
+void EvalVisitor::debugBefore(Node *node)
+{
+    if (!debug_mode) {
+        return;
+    }
+
+    debug_step++;
+    std::cout << "[debug] step " << debug_step << " depth " << debug_depth << ": " << debugNodeText(node) << std::endl;
+    debugPrintEnvironment();
+
+    if (debug_continue) {
+        return;
+    }
+
+    debugPrintHelp();
+
+    while (true) {
+        std::cout << "[debug] command [h for help]: ";
+        std::string command;
+        if (!std::getline(std::cin, command)) {
+            debug_continue = true;
+            std::cout << std::endl;
+            return;
+        }
+
+        std::string trimmed = trimLine(command);
+        if (trimmed == "" || trimmed == "s" || trimmed == "step" || trimmed == "n" || trimmed == "next") {
+            return;
+        }
+        if (trimmed == "c" || trimmed == "continue") {
+            debug_continue = true;
+            return;
+        }
+        if (trimmed == "p" || trimmed == "print") {
+            debugPrintEnvironment();
+            continue;
+        }
+        if (trimmed.size() > 2 && trimmed[0] == 'p' && std::isspace(static_cast<unsigned char>(trimmed[1]))) {
+            debugPrintValue(trimLine(trimmed.substr(2)));
+            continue;
+        }
+        if (trimmed == "h" || trimmed == "help") {
+            debugPrintHelp();
+            continue;
+        }
+        if (trimmed == "q" || trimmed == "quit") {
+            throw std::runtime_error("Debugger stopped execution");
+        }
+
+        std::cout << "[debug] unknown command: " << trimmed << std::endl;
+        debugPrintHelp();
+    }
 }
 
 void EvalVisitor::registerBuiltins()
@@ -70,7 +230,17 @@ void EvalVisitor::registerBuiltins()
 Value EvalVisitor::evaluate(Node *node)
 {
     if (!node) return Value::makeNil();
-    node->visit(this);
+
+    debugBefore(node);
+    debug_depth++;
+    try {
+        node->visit(this);
+    } catch (...) {
+        debug_depth--;
+        throw;
+    }
+    debug_depth--;
+
     return result;
 }
 
@@ -95,12 +265,33 @@ Value EvalVisitor::run(ModuleNode *module)
     return Value::makeNil();
 }
 
+namespace {
+
+class EnvScopeGuard {
+public:
+    EnvScopeGuard(Environment *&slot, Environment *replacement)
+        : slot(slot), previous(slot)
+    {
+        slot = replacement;
+    }
+
+    ~EnvScopeGuard()
+    {
+        slot = previous;
+    }
+
+private:
+    Environment *&slot;
+    Environment *previous;
+};
+
+}
+
 Value EvalVisitor::callFunction(FunctionNode *fn, std::vector<Value> &args)
 {
     // Create new environment for function scope
     Environment func_env(&global_env);
-    Environment *old_env = env;
-    env = &func_env;
+    EnvScopeGuard guard(env, &func_env);
 
     // Bind parameters
     for (size_t i = 0; i < fn->params.size() && i < args.size(); i++) {
@@ -117,7 +308,6 @@ Value EvalVisitor::callFunction(FunctionNode *fn, std::vector<Value> &args)
         return_val = ret.value;
     }
 
-    env = old_env;
     return return_val;
 }
 
@@ -439,14 +629,12 @@ void EvalVisitor::visit(BlockNode *node)
 {
     // Create new scope for block
     Environment block_env(env);
-    Environment *old_env = env;
-    env = &block_env;
+    EnvScopeGuard guard(env, &block_env);
 
     for (Node *stmt : node->children) {
         evaluate(stmt);
     }
 
-    env = old_env;
     result = Value::makeNil();
 }
 
