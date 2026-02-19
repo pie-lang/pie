@@ -25,4 +25,7 @@ ADD_SUBDIRECTORY(runtime)
 ADD_SUBDIRECTORY(vendor)
 ADD_SUBDIRECTORY(main)
 
+enable_testing()
+ADD_SUBDIRECTORY(tests)
+
 INCLUDE(GNUInstallDirs)
