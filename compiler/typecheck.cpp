@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <cassert>
+#include <map>
 
 namespace pie { namespace compiler {
 
@@ -38,6 +39,11 @@ PieTypePtr TypeChecker::resolveTypeNode(TypeNode *tn)
     if (!tn) return PieType::makeVoid();
     PieTypePtr t = PieType::fromName(tn->name, tn->is_array);
     if (t->isUnknown()) {
+        // Check whether it is a user-defined struct type.
+        PieTypePtr looked_up = global_type_env_.get(tn->name);
+        if (looked_up && looked_up->kind == PieType::Kind::Struct) {
+            return tn->is_array ? PieType::makeArray(looked_up) : looked_up;
+        }
         error("Unknown type name: '" + tn->name + "'");
     }
     return t;
@@ -90,7 +96,19 @@ void TypeChecker::visit(Node *node)
 
 void TypeChecker::visit(ModuleNode *node)
 {
-    // Pass 1: register all top-level function types so recursive / mutually
+    // Pass 1a: register all struct types so they can be referenced in
+    // function signatures and bodies.
+    for (StructDefNode *sd : node->structs) {
+        std::map<std::string, PieTypePtr> field_types;
+        for (auto &field : sd->fields) {
+            PieTypePtr ft = resolveTypeNode(field.second);
+            field_types[field.first] = ft;
+        }
+        global_type_env_.define(sd->name,
+            PieType::makeStruct(sd->name, std::move(field_types)));
+    }
+
+    // Pass 1b: register all top-level function types so recursive / mutually
     // recursive calls can be resolved during Pass 2.
     for (FunctionNode *fn : node->functions) {
         std::vector<PieTypePtr> param_types;
@@ -556,6 +574,97 @@ void TypeChecker::visit(BlockNode *node)
 
     type_env_ = saved;
     result_type_ = PieType::makeVoid();
+}
+
+// ---------------------------------------------------------------------------
+// Struct definition  (struct Point { x: int, y: int })
+// ---------------------------------------------------------------------------
+
+void TypeChecker::visit(StructDefNode *node)
+{
+    // Already registered in visit(ModuleNode); nothing to do here.
+    result_type_ = PieType::makeVoid();
+}
+
+// ---------------------------------------------------------------------------
+// Struct literal  (Point { x: 1, y: 2 })
+// ---------------------------------------------------------------------------
+
+void TypeChecker::visit(StructLiteralNode *node)
+{
+    // Look up the struct type.
+    PieTypePtr struct_type = type_env_->get(node->struct_name);
+    if (!struct_type || struct_type->kind != PieType::Kind::Struct) {
+        error("Unknown struct type '" + node->struct_name + "'");
+        result_type_ = PieType::makeUnknown();
+        return;
+    }
+
+    const auto &declared = struct_type->struct_fields;
+
+    // Check every provided field name/type.
+    for (auto &init : node->field_inits) {
+        const std::string &fname = init.first;
+        auto it = declared.find(fname);
+        if (it == declared.end()) {
+            error("Struct '" + node->struct_name +
+                  "' has no field '" + fname + "'");
+            checkNode(init.second);  // still check the expr
+            continue;
+        }
+        PieTypePtr val_type = checkNode(init.second);
+        if (!assignable(*val_type, *it->second)) {
+            error("Field '" + fname + "' of struct '" + node->struct_name +
+                  "' expects " + it->second->toString() +
+                  ", got " + val_type->toString());
+        }
+    }
+
+    // Warn about missing required fields.
+    for (const auto &kv : declared) {
+        bool provided = false;
+        for (const auto &init : node->field_inits) {
+            if (init.first == kv.first) { provided = true; break; }
+        }
+        if (!provided) {
+            error("Struct literal for '" + node->struct_name +
+                  "' is missing field '" + kv.first + "'");
+        }
+    }
+
+    result_type_ = struct_type;
+}
+
+// ---------------------------------------------------------------------------
+// Field access  (p.x)
+// ---------------------------------------------------------------------------
+
+void TypeChecker::visit(FieldAccessNode *node)
+{
+    PieTypePtr obj_type = checkNode(node->object);
+
+    if (obj_type->isUnknown()) {
+        // Error already reported upstream.
+        result_type_ = PieType::makeUnknown();
+        return;
+    }
+
+    if (obj_type->kind != PieType::Kind::Struct) {
+        error("Cannot access field '" + node->field +
+              "' on non-struct type " + obj_type->toString());
+        result_type_ = PieType::makeUnknown();
+        return;
+    }
+
+    auto it = obj_type->struct_fields.find(node->field);
+    if (it == obj_type->struct_fields.end()) {
+        error("Struct '" + obj_type->struct_name +
+              "' has no field '" + node->field + "'");
+        result_type_ = PieType::makeUnknown();
+        return;
+    }
+
+    result_type_ = it->second;
 }
 
 }}

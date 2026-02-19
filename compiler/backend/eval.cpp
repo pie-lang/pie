@@ -638,4 +638,33 @@ void EvalVisitor::visit(BlockNode *node)
     result = Value::makeNil();
 }
 
+void EvalVisitor::visit(StructDefNode *node)
+{
+    // Struct definitions are processed at module load time; nothing to do here.
+    result = Value::makeNil();
+}
+
+void EvalVisitor::visit(StructLiteralNode *node)
+{
+    auto fields = std::make_shared<std::map<std::string, Value>>();
+    for (auto &init : node->field_inits) {
+        (*fields)[init.first] = evaluate(init.second);
+    }
+    result = Value::makeStruct(fields);
+}
+
+void EvalVisitor::visit(FieldAccessNode *node)
+{
+    Value obj = evaluate(node->object);
+    if (obj.type != Value::Type::Struct || !obj.struct_fields) {
+        throw std::runtime_error(
+            "Cannot access field '" + node->field + "' on non-struct value");
+    }
+    auto it = obj.struct_fields->find(node->field);
+    if (it == obj.struct_fields->end()) {
+        throw std::runtime_error("Struct has no field '" + node->field + "'");
+    }
+    result = it->second;
+}
+
 }}

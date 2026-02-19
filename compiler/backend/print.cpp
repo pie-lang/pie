@@ -278,4 +278,41 @@ void PrintVisitor::visit(BlockNode *node)
     out << "}";
 }
 
+void PrintVisitor::visit(StructDefNode *node)
+{
+    out << "struct " << node->name << " {";
+    newline();
+    indent_level++;
+    for (auto &field : node->fields) {
+        indent();
+        out << field.first;
+        if (field.second) {
+            out << ": " << field.second->name;
+        }
+        newline();
+    }
+    indent_level--;
+    indent();
+    out << "}";
+}
+
+void PrintVisitor::visit(StructLiteralNode *node)
+{
+    out << node->struct_name << " {";
+    bool first = true;
+    for (auto &init : node->field_inits) {
+        if (!first) out << ", ";
+        out << init.first << ": ";
+        if (init.second) init.second->visit(this);
+        first = false;
+    }
+    out << "}";
+}
+
+void PrintVisitor::visit(FieldAccessNode *node)
+{
+    if (node->object) node->object->visit(this);
+    out << "." << node->field;
+}
+
 }}

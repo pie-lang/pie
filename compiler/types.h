@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <memory>
 
 namespace pie { namespace compiler {
@@ -18,6 +19,7 @@ struct PieType {
         Void,       // return type of functions that don't return a value
         Array,      // element_type must be set
         Function,   // param_types + return_type must be set
+        Struct,     // struct_name + struct_fields must be set
         Unknown,    // placeholder during inference / for builtins with any-type params
     };
 
@@ -30,6 +32,10 @@ struct PieType {
     std::vector<std::shared_ptr<PieType>> param_types;
     std::shared_ptr<PieType> return_type;
 
+    // Struct
+    std::string struct_name;
+    std::map<std::string, std::shared_ptr<PieType>> struct_fields;
+
     explicit PieType(Kind k) : kind(k) {}
 
     // --- factories ---
@@ -39,6 +45,16 @@ struct PieType {
     static std::shared_ptr<PieType> makeString()  { return std::make_shared<PieType>(Kind::String); }
     static std::shared_ptr<PieType> makeVoid()    { return std::make_shared<PieType>(Kind::Void); }
     static std::shared_ptr<PieType> makeUnknown() { return std::make_shared<PieType>(Kind::Unknown); }
+
+    static std::shared_ptr<PieType> makeStruct(
+        const std::string &name,
+        std::map<std::string, std::shared_ptr<PieType>> fields)
+    {
+        auto t = std::make_shared<PieType>(Kind::Struct);
+        t->struct_name = name;
+        t->struct_fields = std::move(fields);
+        return t;
+    }
 
     static std::shared_ptr<PieType> makeArray(std::shared_ptr<PieType> elem)
     {
@@ -69,6 +85,9 @@ struct PieType {
             return element_type && o.element_type &&
                    element_type->equals(*o.element_type);
         }
+        if (kind == Kind::Struct) {
+            return struct_name == o.struct_name;
+        }
         if (kind == Kind::Function) {
             if (param_types.size() != o.param_types.size()) return false;
             for (size_t i = 0; i < param_types.size(); i++) {
@@ -90,6 +109,7 @@ struct PieType {
             case Kind::String:  return "string";
             case Kind::Void:    return "void";
             case Kind::Unknown: return "<unknown>";
+            case Kind::Struct:  return struct_name;
             case Kind::Array:
                 return element_type ? element_type->toString() + "[]" : "<array>";
             case Kind::Function: {
@@ -117,6 +137,9 @@ struct PieType {
         else if (name == "bool")   base = makeBool();
         else if (name == "string") base = makeString();
         else if (name == "void")   base = makeVoid();
+        // User-defined struct names are NOT resolved here — the type checker
+        // looks them up in the type environment.  Return Unknown so the checker
+        // can handle the lookup and report a proper error if needed.
         else                       base = makeUnknown();
         return is_array ? makeArray(base) : base;
     }

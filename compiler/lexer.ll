@@ -61,6 +61,7 @@ NEWLINE 		("\r"|"\n"|"\r\n")
 "module"		{ RETURN_TOKEN(T_MODULE); }
 "import"		{ RETURN_TOKEN(T_IMPORT); }
 "let"			{ RETURN_TOKEN(T_LET); }
+"struct"		{ RETURN_TOKEN(T_STRUCT); }
 
 "public"		{ RETURN_TOKEN(T_ACC_PUBLIC); }
 

@@ -14,5 +14,6 @@
 #include "compiler/ast/return.h"
 #include "compiler/ast/if.h"
 #include "compiler/ast/block.h"
+#include "compiler/ast/struct.h"
 
 #endif

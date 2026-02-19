@@ -39,11 +39,13 @@ static int yylex(YYSTYPE *token, pie::compiler::Parser *_p);
     int visibility;
     std::vector<pie::compiler::Node*> *node_list;
     std::vector<std::pair<std::string, pie::compiler::TypeNode*>> *param_list;
+    std::vector<std::pair<std::string, pie::compiler::Node*>> *field_init_list;
 }
 
 %destructor { delete $$; } <str>
 %destructor { delete $$; } <node_list>
 %destructor { delete $$; } <param_list>
+%destructor { delete $$; } <field_init_list>
 
 /* Precedence from lowest to highest */
 %right '='
@@ -71,6 +73,7 @@ static int yylex(YYSTYPE *token, pie::compiler::Parser *_p);
 %token T_FUNC
 %token T_RETURN
 %token T_LET
+%token T_STRUCT
 
 /* statement related */
 %token T_IF
@@ -100,6 +103,7 @@ static int yylex(YYSTYPE *token, pie::compiler::Parser *_p);
 %type <node> import_stmt
 %type <node> statement
 %type <node> func_decl_stmt
+%type <node> struct_decl_stmt
 %type <node> expr
 %type <node> if_stmt
 %type <block> func_body
@@ -112,6 +116,10 @@ static int yylex(YYSTYPE *token, pie::compiler::Parser *_p);
 %type <node_list> argument_list
 %type <param_list> parameter_list
 %type <param_list> parameter_list_inner
+%type <param_list> struct_fields
+%type <param_list> struct_field_list
+%type <field_init_list> struct_literal_fields
+%type <field_init_list> struct_literal_field_list
 
 %%
 
@@ -161,6 +169,7 @@ statements:
             _p->function->push($2);
         }
     }
+    | statements struct_decl_stmt { /* struct registered in action body */ }
 ;
 
 statement:
@@ -183,6 +192,64 @@ statement:
     | expr { $$ = $1; }
 ;
 
+/* -------------------------------------------------------------------------
+ * Struct type declaration:  struct Point { x: int, y: int }
+ * ------------------------------------------------------------------------- */
+
+struct_decl_stmt:
+    T_STRUCT T_IDENTIFIER '{' struct_fields '}' {
+        StructDefNode *sdef = new StructDefNode();
+        sdef->name = *$2;
+        if ($4) {
+            sdef->fields = *$4;
+            delete $4;
+        }
+        _p->module->structs.push_back(sdef);
+        _p->module->symtab[*$2] = sdef;
+        delete $2;
+        $$ = sdef;
+    }
+;
+
+struct_fields:
+    /* Empty */ { $$ = new std::vector<std::pair<std::string, TypeNode*>>(); }
+    | struct_field_list { $$ = $1; }
+;
+
+struct_field_list:
+    T_IDENTIFIER ':' type_name {
+        $$ = new std::vector<std::pair<std::string, TypeNode*>>();
+        $$->push_back(std::make_pair(*$1, $3));
+        delete $1;
+    }
+    | struct_field_list ',' T_IDENTIFIER ':' type_name {
+        $$ = $1;
+        $$->push_back(std::make_pair(*$3, $5));
+        delete $3;
+    }
+;
+
+/* -------------------------------------------------------------------------
+ * Struct literal field initializers
+ * ------------------------------------------------------------------------- */
+
+struct_literal_fields:
+    /* Empty */ { $$ = new std::vector<std::pair<std::string, Node*>>(); }
+    | struct_literal_field_list { $$ = $1; }
+;
+
+struct_literal_field_list:
+    T_IDENTIFIER ':' expr {
+        $$ = new std::vector<std::pair<std::string, Node*>>();
+        $$->push_back(std::make_pair(*$1, $3));
+        delete $1;
+    }
+    | struct_literal_field_list ',' T_IDENTIFIER ':' expr {
+        $$ = $1;
+        $$->push_back(std::make_pair(*$3, $5));
+        delete $3;
+    }
+;
 
 arguments:
     /* Empty */ { $$ = new std::vector<Node*>(); }
@@ -358,7 +425,11 @@ expr:
         $$ = _p->makeFunctionCall(*$1, args);
         delete $1;
     }
-    | symbol_name '.' T_IDENTIFIER '(' arguments ')' {
+    | T_IDENTIFIER '.' T_IDENTIFIER '(' arguments ')' {
+        /* Dotted function call: io.print(args)
+         * The shift-reduce conflict with field access below is resolved
+         * by Bison's default preference for shift when lookahead is '(',
+         * which correctly selects this rule. */
         std::string fullName = *$1 + "." + *$3;
         std::vector<Node*> args;
         if ($5) {
@@ -368,6 +439,18 @@ expr:
         $$ = _p->makeFunctionCall(fullName, args);
         delete $1;
         delete $3;
+    }
+    | T_IDENTIFIER '.' T_IDENTIFIER {
+        /* Field read access: p.x
+         * Selected when lookahead after id.id is not '('. */
+        $$ = _p->makeFieldAccess(_p->makeIdentifier(*$1), *$3);
+        delete $1;
+        delete $3;
+    }
+    | T_IDENTIFIER '{' struct_literal_fields '}' {
+        /* Struct literal: Point { x: 1, y: 2 } */
+        $$ = _p->makeStructLiteral(*$1, $3);
+        delete $1;
     }
     | expr '+' expr {
         $$ = _p->makeBinaryOp(BinaryOp::Add, $1, $3);

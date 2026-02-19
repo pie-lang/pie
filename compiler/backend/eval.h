@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 #include <vector>
 #include <stdexcept>
 #include <functional>
@@ -20,7 +21,8 @@ struct Value {
         Bool,
         String,
         Function,
-        BuiltinFunction
+        BuiltinFunction,
+        Struct
     };
 
     Type type;
@@ -30,8 +32,11 @@ struct Value {
     std::string string_val;
     FunctionNode *function_val;
     std::function<Value(std::vector<Value>&)> builtin_val;
+    // Struct fields — shared so that Value copies are cheap.
+    std::shared_ptr<std::map<std::string, Value>> struct_fields;
 
-    Value() : type(Type::Nil), int_val(0), double_val(0.0), bool_val(false), function_val(nullptr) {}
+    Value() : type(Type::Nil), int_val(0), double_val(0.0), bool_val(false),
+              function_val(nullptr) {}
 
     static Value makeNil() {
         return Value();
@@ -79,6 +84,13 @@ struct Value {
         return val;
     }
 
+    static Value makeStruct(std::shared_ptr<std::map<std::string, Value>> fields) {
+        Value val;
+        val.type = Type::Struct;
+        val.struct_fields = std::move(fields);
+        return val;
+    }
+
     // Convert to numeric for arithmetic
     double toDouble() const {
         if (type == Type::Int) return (double)int_val;
@@ -112,6 +124,18 @@ struct Value {
             case Type::String: return string_val;
             case Type::Function: return "<function>";
             case Type::BuiltinFunction: return "<builtin>";
+            case Type::Struct: {
+                if (!struct_fields) return "{}";
+                std::string s = "{";
+                bool first = true;
+                for (const auto &kv : *struct_fields) {
+                    if (!first) s += ", ";
+                    s += kv.first + ": " + kv.second.toString();
+                    first = false;
+                }
+                s += "}";
+                return s;
+            }
             default: return "<unknown>";
         }
     }

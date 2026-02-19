@@ -20,7 +20,10 @@
 	AST_NODE(UnaryOpNode)		\
 	AST_NODE(ReturnNode)		\
 	AST_NODE(IfNode)			\
-	AST_NODE(BlockNode)
+	AST_NODE(BlockNode)			\
+	AST_NODE(StructDefNode)		\
+	AST_NODE(StructLiteralNode)	\
+	AST_NODE(FieldAccessNode)
 
 #define NEW_NODE(type, ...) new type ## Node(__VA_ARGS__)
 

@@ -110,4 +110,21 @@ TypeNode *Parser::makeType(const std::string &name, bool isArray)
     return new TypeNode(name, isArray);
 }
 
+Node *Parser::makeStructLiteral(const std::string &typeName,
+                                std::vector<std::pair<std::string, Node*>> *fields)
+{
+    StructLiteralNode *lit = new StructLiteralNode();
+    lit->struct_name = typeName;
+    if (fields) {
+        lit->field_inits = *fields;
+        delete fields;
+    }
+    return lit;
+}
+
+Node *Parser::makeFieldAccess(Node *object, const std::string &field)
+{
+    return new FieldAccessNode(object, field);
+}
+
 }}

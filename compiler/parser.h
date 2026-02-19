@@ -40,6 +40,9 @@ public:
 	Node *makeIf(Node *cond, BlockNode *then_block, Node *else_block);
 	BlockNode *makeBlock();
 	TypeNode *makeType(const std::string &name, bool isArray);
+	Node *makeStructLiteral(const std::string &typeName,
+	                        std::vector<std::pair<std::string, Node*>> *fields);
+	Node *makeFieldAccess(Node *object, const std::string &field);
 
 public:
 	Scanner &scanner;

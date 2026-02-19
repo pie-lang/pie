@@ -15,6 +15,7 @@ public:
 	std::map<std::string, Node *> symtab;
 	std::vector<ImportNode *> imports;
 	std::vector<FunctionNode *> functions;
+	std::vector<StructDefNode *> structs;
 
 	DEFINE_VISIT(ModuleNode);
 
