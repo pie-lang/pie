@@ -7,6 +7,7 @@
 #include "compiler/parser.h"
 #include "compiler/backend/print.h"
 #include "compiler/backend/eval.h"
+#include "compiler/typecheck.h"
 
 using namespace pie::compiler;
 
@@ -14,9 +15,10 @@ void printUsage(const char *prog)
 {
     fprintf(stderr, "Usage: %s [options] <file.pie>\n", prog);
     fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  --print    Print the AST (don't execute)\n");
-    fprintf(stderr, "  --debug    Run interpreter with step-by-step debugger\n");
-    fprintf(stderr, "  --help     Show this help message\n");
+    fprintf(stderr, "  --print          Print the AST (don't execute)\n");
+    fprintf(stderr, "  --debug          Run interpreter with step-by-step debugger\n");
+    fprintf(stderr, "  --no-typecheck   Skip static type checking\n");
+    fprintf(stderr, "  --help           Show this help message\n");
 }
 
 int main(int argc, char **argv)
@@ -24,6 +26,7 @@ int main(int argc, char **argv)
     FILE *file = NULL;
     bool print_mode = false;
     bool debug_mode = false;
+    bool typecheck = true;
     const char *filename = nullptr;
 
     // Parse command line arguments
@@ -32,6 +35,8 @@ int main(int argc, char **argv)
             print_mode = true;
         } else if (strcmp(argv[i], "--debug") == 0) {
             debug_mode = true;
+        } else if (strcmp(argv[i], "--no-typecheck") == 0) {
+            typecheck = false;
         } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             printUsage(argv[0]);
             return 0;
@@ -76,7 +81,22 @@ int main(int argc, char **argv)
         PrintVisitor printer;
         module->visit(&printer);
         std::cout << printer.output();
-    } else {
+        return 0;
+    }
+
+    // Static type checking (unless disabled)
+    if (typecheck) {
+        TypeChecker checker;
+        bool ok = checker.check(module);
+        if (!ok) {
+            for (const TypeError &e : checker.errors()) {
+                fprintf(stderr, "type error: %s\n", e.message.c_str());
+            }
+            return 4;
+        }
+    }
+
+    {
         // Execution mode: run the program
         try {
             EvalVisitor interpreter;
@@ -94,4 +114,5 @@ int main(int argc, char **argv)
     }
 
     return 0;
+
 }
